@@ -1,0 +1,65 @@
+import streamlit as st
+
+from services.nodes import get_root_nodes
+from services.device import set_home_node
+from services.device import register_device
+
+from ui.components import (
+    header,
+    bottom_navigation
+)
+
+
+def render():
+
+    header()
+
+    st.markdown(
+        "## 🎓 Choose your home"
+    )
+
+    st.caption(
+        "This is not a student account. "
+        "It only tells the application which "
+        "part of the academic tree is relevant to you."
+    )
+
+    nodes = get_root_nodes()
+
+    if not nodes:
+
+        st.warning(
+            "No university nodes are available."
+        )
+
+        bottom_navigation()
+
+        return
+
+    options = {
+        node["title"]: node["id"]
+        for node in nodes
+    }
+
+    selected = st.selectbox(
+        "University",
+        list(options.keys())
+    )
+
+    if st.button(
+        "Save"
+    ):
+
+        node_id = options[selected]
+
+        set_home_node(
+            node_id
+        )
+
+        register_device()
+
+        st.session_state.page = "home"
+
+        st.rerun()
+
+    bottom_navigation()
